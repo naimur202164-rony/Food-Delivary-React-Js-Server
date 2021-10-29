@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const port = 5000;
 const cors = require('cors');
-const { MongoClient } = require('mongodb');
+const { MongoClient, } = require('mongodb');
 
 
 app.use(cors());
@@ -24,13 +24,29 @@ async function run() {
         await client.connect();
         const database = client.db("DelivarFoods");
         const LoadingCollectionfoods = database.collection("insarted-foods");
+        const collectionFoods = database.collection("orderd-foods")
         // Getting Data From Server||Get
         app.get('/delivaryfoods', async (req, res) => {
             const result = await LoadingCollectionfoods.find({}).toArray();
+            // console.log(result);
+            res.send(result)
+        });
+
+        // Post Data
+
+        app.post("/addProducts", async (req, res) => {
+            const result = await collectionFoods.insertOne(req.body)
+            res.send(result);
+
+        });
+        // Get data Data from addProducts
+        app.get('/OrderdDetails', async (req, res) => {
+            const result = await collectionFoods.find({}).toArray();
             console.log(result);
             res.send(result)
-        })
 
+
+        })
 
 
 
