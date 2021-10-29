@@ -2,8 +2,8 @@ const express = require('express');
 const app = express();
 const port = 5000;
 const cors = require('cors');
-const { MongoClient, } = require('mongodb');
-
+const ObjectId = require("mongodb").ObjectId;
+const MongoClient = require("mongodb").MongoClient;
 
 app.use(cors());
 app.use(express.json());
@@ -24,7 +24,7 @@ async function run() {
         await client.connect();
         const database = client.db("DelivarFoods");
         const LoadingCollectionfoods = database.collection("insarted-foods");
-        const collectionFoods = database.collection("orderd-foods")
+        const CollectionFoods = database.collection("orderd-foods")
         // Getting Data From Server||Get
         app.get('/delivaryfoods', async (req, res) => {
             const result = await LoadingCollectionfoods.find({}).toArray();
@@ -35,19 +35,29 @@ async function run() {
         // Post Data
 
         app.post("/addProducts", async (req, res) => {
-            const result = await collectionFoods.insertOne(req.body)
+            const result = await CollectionFoods.insertOne(req.body)
+            // console.log(result)
             res.send(result);
 
         });
         // Get data Data from addProducts
         app.get('/OrderdDetails', async (req, res) => {
-            const result = await collectionFoods.find({}).toArray();
-            console.log(result);
+            const result = await CollectionFoods.find({}).toArray();
             res.send(result)
 
 
-        })
+        });
+        // Delerte Items from 
 
+
+        //delete product from the database
+        app.delete('/deletitems/:id', async (req, res) => {
+            // const uri = req.params.id;
+            // console.log(uri);
+            const result = await CollectionFoods.deleteOne({ _id: ObjectId(req.params.id) });
+            res.send(result)
+            console.log(result)
+        })
 
 
     } finally {
