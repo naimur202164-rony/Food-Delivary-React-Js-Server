@@ -26,7 +26,7 @@ async function run() {
         await client.connect();
         const database = client.db("DelivarFoods");
         const LoadingCollectionfoods = database.collection("insarted-foods");
-        const CollectionFoods = database.collection("orderd-foods");
+        const collectionFoods = database.collection("orderd-foods");
         const UploadCollectionFoods = database.collection('AddFoods')
         // Getting Data From Server||Get
         app.get('/delivaryfoods', async (req, res) => {
@@ -38,14 +38,14 @@ async function run() {
         // Post Data
 
         app.post("/addProducts", async (req, res) => {
-            const result = await CollectionFoods.insertOne(req.body)
+            const result = await collectionFoods.insertOne(req.body)
             // console.log(result)
             res.send(result);
 
         });
         // Get data Data from addProducts
         app.get('/OrderdDetails', async (req, res) => {
-            const result = await CollectionFoods.find({}).toArray();
+            const result = await collectionFoods.find({}).toArray();
             res.send(result)
 
 
@@ -53,20 +53,17 @@ async function run() {
 
 
         //delete product from the database
-        app.delete('/deleteProduct/:id', async (req, res) => {
-            // const uri = req.params.id;
-            // console.log(uri);
-            // const result = await CollectionFoods.deleteOne({ _id: ObjectId(req.params.id) });
-            // res.send(result)
-            // console.log(result)
+        app.delete('/OrderdDetails/:id', async (req, res) => {
 
-            console.log(req.params.id);
 
-            CollectionFoods
-                .deleteOne({ _id: ObjectId(req.params.id) })
-                .then((result) => {
-                    res.send(result);
-                });
+            const id = req.params.id;
+            const result = await collectionFoods.deleteOne({ _id: ObjectId(id) });
+            res.send(result)
+            console.log(result
+            )
+
+
+
         })
         // Upload New Products|| Post Itmes
         app.post('/uploadProducts', async (req, res) => {
