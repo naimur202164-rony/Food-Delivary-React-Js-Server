@@ -1,14 +1,16 @@
 const express = require('express');
 const app = express();
-const port = 5000;
 const cors = require('cors');
 const ObjectId = require("mongodb").ObjectId;
 const MongoClient = require("mongodb").MongoClient;
+const port = process.env.PORT || 5000;
+
+require('dotenv').config()
 
 app.use(cors());
 app.use(express.json());
 // Conection Link
-const uri = "mongodb+srv://mydbuser1:XSzJ1yYpwViGky5X@cluster0.tlrw7.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.tlrw7.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 
@@ -24,7 +26,8 @@ async function run() {
         await client.connect();
         const database = client.db("DelivarFoods");
         const LoadingCollectionfoods = database.collection("insarted-foods");
-        const CollectionFoods = database.collection("orderd-foods")
+        const CollectionFoods = database.collection("orderd-foods");
+        const UploadCollectionFoods = database.collection('AddFoods')
         // Getting Data From Server||Get
         app.get('/delivaryfoods', async (req, res) => {
             const result = await LoadingCollectionfoods.find({}).toArray();
@@ -47,18 +50,36 @@ async function run() {
 
 
         });
-        // Delerte Items from 
 
 
         //delete product from the database
-        app.delete('/deletitems/:id', async (req, res) => {
+        app.delete('/deleteProduct/:id', async (req, res) => {
             // const uri = req.params.id;
             // console.log(uri);
-            const result = await CollectionFoods.deleteOne({ _id: ObjectId(req.params.id) });
-            res.send(result)
-            console.log(result)
-        })
+            // const result = await CollectionFoods.deleteOne({ _id: ObjectId(req.params.id) });
+            // res.send(result)
+            // console.log(result)
 
+            console.log(req.params.id);
+
+            CollectionFoods
+                .deleteOne({ _id: ObjectId(req.params.id) })
+                .then((result) => {
+                    res.send(result);
+                });
+        })
+        // Upload New Products|| Post Itmes
+        app.post('/uploadProducts', async (req, res) => {
+            const addItmes = await UploadCollectionFoods.insertOne(req.body);
+            res.send(addItmes);
+            // console.log(addItmes)
+        })
+        // Geting Upload Products || GET
+        app.get('/loadedProducts', async (req, res) => {
+            const result = await UploadCollectionFoods.find({}).toArray();
+            res.send(result);
+            // console.log(result)
+        })
 
     } finally {
         //   await client.close();
